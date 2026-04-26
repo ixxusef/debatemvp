@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: debate
+      POSTGRES_PASSWORD: debate
+      POSTGRES_DB: debateai
+    ports:
+      - "5432:5432"
+    volumes:
+      - debate_pg:/var/lib/postgresql/data
+
+volumes:
+  debate_pg:

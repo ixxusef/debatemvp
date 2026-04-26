@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+}
+
+enum Difficulty {
+  FRIENDLY
+  NEUTRAL
+  AGGRESSIVE
+  EXPERT
+}
+
+model User {
+  id               String    @id @default(cuid())
+  clerkId          String    @unique
+  email            String?
+  stripeCustomerId String?   @unique
+  subscriptionTier SubscriptionTier @default(FREE)
+  debatesUsed      Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  sessions         DebateSession[]
+}
+
+model DebateSession {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic         String
+  customTopic   Boolean  @default(false)
+  difficulty    Difficulty
+  status        String   @default("PENDING")
+  timeLimitSec  Int      @default(300)
+  startedAt     DateTime?
+  endedAt       DateTime?
+  transcript    Json?    // array of { role, text, ts }
+  scorecard     Json?    // structured scorecard
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model StripeEvent {
+  id        String   @id
+  createdAt DateTime @default(now())
+}
